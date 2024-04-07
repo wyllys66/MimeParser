@@ -43,12 +43,14 @@ public enum ContentTransferEncoding : Equatable {
 public enum MultipartSubtype : Equatable {
     case mixed
     case alternative
+    case encrypted
     case other(String)
     
     init(_ string: String) {
         switch string.lowercased() {	// case-insensitive: https://datatracker.ietf.org/doc/html/rfc2045#section-5.1
         case "mixed": self = .mixed
         case "alternative": self = .alternative
+        case "pgp-encrypted": self = .encrypted
         default: self = .other(string)
         }
     }
@@ -57,6 +59,7 @@ public enum MultipartSubtype : Equatable {
         switch (lhs, rhs) {
         case (.mixed, .mixed): return true
         case (.alternative, .alternative): return true
+        case (.encrypted, .encrypted): return true
         case (.other(let lhsValue), .other(let rhsValue)): return lhsValue == rhsValue
         default: return false
         }
@@ -225,6 +228,7 @@ public enum MimeContent {
     case body(MimeBody)
     case mixed([Mime])
     case alternative([Mime])
+    case encrypted([Mime])
 }
 
 extension MimeContent : Equatable {
@@ -233,6 +237,7 @@ extension MimeContent : Equatable {
         case (.body(let _lhsBody), .body(let _rhsBody)): return _lhsBody == _rhsBody
         case (.mixed(let lhsValue), .mixed(let rhsValue)): return lhsValue == rhsValue
         case (.alternative(let lhsValue), .alternative(let rhsValue)): return lhsValue == rhsValue
+        case (.encrypted(let lhsValue), .encrypted(let rhsValue)): return lhsValue == rhsValue
         default: return false
         }
     }
@@ -254,6 +259,8 @@ public struct Mime :Equatable {
             return nil
         case .alternative:
             return nil
+        case .encrypted:
+            return nil
         }
     }
     
@@ -266,6 +273,8 @@ public struct Mime :Equatable {
             return nil
         case .alternative:
             return nil
+        case .encrypted:
+            return nil
         }
     }
 }
@@ -277,6 +286,7 @@ extension Mime {
         case .body: return []
         case .mixed(let mimes): return mimes
         case .alternative(let mimes): return mimes
+        case .encrypted(let mimes): return mimes
         }
     }
     
